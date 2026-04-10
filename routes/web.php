@@ -33,6 +33,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/leverancier/{id}/products', [LeverancierController::class, 'products'])
         ->middleware('role:manager,medewerker')
         ->name('leverancier.products');
+    Route::get('/leverancier/{leverancierId}/product/{productId}/edit', [LeverancierController::class, 'editProduct'])
+        ->middleware('role:manager')
+        ->name('leverancier.product.edit');
+    Route::post('/leverancier/{leverancierId}/product/{productId}/update', [LeverancierController::class, 'updateProduct'])
+        ->middleware('role:manager')
+        ->name('leverancier.product.update');
 });
 
 
