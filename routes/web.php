@@ -27,6 +27,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/voorraad/overzicht', [VoorraadController::class, 'overzicht'])->name('voorraad.overzicht');
     Route::get('/voorraad/show/{name}', [VoorraadController::class, 'show'])->name('voorraad.show');
+    // get edit page for voorraad
+    Route::get('/voorraad/edit/{id}', [VoorraadController::class, 'edit'])->name('voorraad.edit');
+    // update voorraad
+    Route::post('/voorraad/update/{id}', [VoorraadController::class, 'update'])->name('voorraad.update');
 });
 
 
