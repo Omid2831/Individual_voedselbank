@@ -10,9 +10,11 @@ Route::get('/', function () {
 });
 
 Route::get('/manager/dashboard', [ManagerController::class, 'index'])->middleware(['auth', 'verified', 'role:manager'])->name('manager.dashboard');
-Route::get('/manager/overzicht-allergieen', function() {
-    return view('allergeen.overzicht_allergieen');
-})->middleware(['auth', 'verified', 'role:manager'])->name('overzicht_allergieen');
+use App\Http\Controllers\AllergieController;
+
+Route::get('/manager/overzicht-allergieen', [AllergieController::class, 'overzicht'])
+    ->middleware(['auth', 'verified', 'role:manager'])
+    ->name('overzicht_allergieen');
 
 Route::get('/dashboard', function () {
     if (auth()->user()->role === 'manager') {
