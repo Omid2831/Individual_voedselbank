@@ -9,13 +9,13 @@ BEGIN
         p.Naam AS ProductNaam,
         p.Barcode,
         p.Houdbaarheidsdatum,
-        p.Ontvangstdatum,
+        m.Ontvangstdatum,
         c.Naam AS Categorie,
         m.VerpakkingsEenheid AS Eenheid,
         m.Aantal,
         m.Uitleveringsdatum,
         DATE_FORMAT(p.Houdbaarheidsdatum, '%d-%m-%Y') AS HoudbaarheidsdatumFormatted,
-        DATE_FORMAT(p.Ontvangstdatum, '%d-%m-%Y') AS OntvangstdatumFormatted,
+        DATE_FORMAT(m.Ontvangstdatum, '%d-%m-%Y') AS OntvangstdatumFormatted,
         DATE_FORMAT(m.Uitleveringsdatum, '%d-%m-%Y') AS UitleveringsdatumFormatted,
         ppm.Locatie AS Magazijn
     FROM product AS p
