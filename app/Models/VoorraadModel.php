@@ -81,14 +81,84 @@ class VoorraadModel extends Model
                 throw new \InvalidArgumentException('Ongeldig product id');
             }
 
-            $result = DB::select('CALL sp_getProductDetails(?)', [(int) $productId]);
-
-            if (empty($result)) {
-                Log::warning('Product niet gevonden op id', ['product_id' => $productId]);
-                return null;
+            $result = [];
+            try {
+                $result = DB::select('CALL sp_getProductDetails(?)', [(int) $productId]);
+            } catch (\Exception $e) {
+                // Fall back to direct query if stored procedure is outdated or missing fields.
+                Log::warning('sp_getProductDetails fallback geactiveerd', [
+                    'product_id' => $productId,
+                    'message' => $e->getMessage(),
+                ]);
             }
 
-            return $result[0];
+            if (!empty($result)) {
+                $product = $result[0];
+            } else {
+                $product = DB::table('Product as p')
+                    ->leftJoin('ProductPerMagazijn as ppm', 'p.Id', '=', 'ppm.ProductId')
+                    ->leftJoin('Magazijn as m', 'ppm.MagazijnId', '=', 'm.Id')
+                    ->where('p.Id', (int) $productId)
+                    ->selectRaw(
+                        "p.Id, p.Id as ProductId, p.Naam as ProductNaam, p.Naam as Productnaam, p.Barcode, " .
+                        "DATE_FORMAT(p.Houdbaarheidsdatum, '%d-%m-%Y') as HoudbaarheidsdatumFormatted, " .
+                        "DATE_FORMAT(m.Ontvangstdatum, '%d-%m-%Y') as OntvangstdatumFormatted, " .
+                        "DATE_FORMAT(m.Uitleveringsdatum, '%d-%m-%Y') as UitleveringsdatumFormatted, " .
+                        "m.Aantal, ppm.Locatie as MagazijnLocatie"
+                    )
+                    ->first();
+
+                if (!$product) {
+                    Log::warning('Product niet gevonden op id', ['product_id' => $productId]);
+                    return null;
+                }
+            }
+
+            // Normalize property names across procedures/views.
+            if (!isset($product->ProductNaam) && isset($product->Productnaam)) {
+                $product->ProductNaam = $product->Productnaam;
+            }
+            if (!isset($product->Productnaam) && isset($product->ProductNaam)) {
+                $product->Productnaam = $product->ProductNaam;
+            }
+            if (!isset($product->ProductId) && isset($product->Id)) {
+                $product->ProductId = $product->Id;
+            }
+
+            // Backfill product-level fields when payload is partial.
+            $base = DB::table('Product')
+                ->where('Id', (int) $productId)
+                ->first(['Id', 'Naam', 'Barcode', 'Houdbaarheidsdatum']);
+
+            if ($base) {
+                $product->Id = $product->Id ?? $base->Id;
+                $product->ProductId = $product->ProductId ?? $base->Id;
+                $product->ProductNaam = $product->ProductNaam ?? $base->Naam;
+                $product->Productnaam = $product->Productnaam ?? $base->Naam;
+                $product->Barcode = $product->Barcode ?? $base->Barcode;
+
+                if (empty($product->HoudbaarheidsdatumFormatted) && !empty($base->Houdbaarheidsdatum)) {
+                    $product->HoudbaarheidsdatumFormatted = date('d-m-Y', strtotime($base->Houdbaarheidsdatum));
+                }
+            }
+
+            // Backfill magazijn dates if missing.
+            $mag = DB::table('ProductPerMagazijn as ppm')
+                ->join('Magazijn as m', 'ppm.MagazijnId', '=', 'm.Id')
+                ->where('ppm.ProductId', (int) $productId)
+                ->select('m.Ontvangstdatum', 'm.Uitleveringsdatum')
+                ->first();
+
+            if ($mag) {
+                if (empty($product->OntvangstdatumFormatted) && !empty($mag->Ontvangstdatum)) {
+                    $product->OntvangstdatumFormatted = date('d-m-Y', strtotime($mag->Ontvangstdatum));
+                }
+                if (empty($product->UitleveringsdatumFormatted) && !empty($mag->Uitleveringsdatum)) {
+                    $product->UitleveringsdatumFormatted = date('d-m-Y', strtotime($mag->Uitleveringsdatum));
+                }
+            }
+
+            return $product;
         } catch (\Exception $e) {
             Log::error('Fout bij ophalen productdetails op id', [
                 'product_id' => $productId,
