@@ -275,3 +275,92 @@ CREATE TABLE ProductPerVoedselPakket (
 
 INSERT INTO ProductPerVoedselPakket (VoedselpakketId, ProductId, AantalProductEenheden) VALUES
 (1, 7, 1), (1, 8, 2), (2, 12, 1), (3, 3, 1);
+
+-- 14. Magazijn
+CREATE TABLE Magazijn (
+    Id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
+    Ontvangstdatum DATE NOT NULL,
+    Uitleveringsdatum DATE NULL,
+    VerpakkingsEenheid VARCHAR(50),
+    Aantal MEDIUMINT NOT NULL,
+    isactief BIT NOT NULL DEFAULT 1,
+    Opmerking VARCHAR(255) NULL,
+    DatumAangemaakt DATETIME(6) NOT NULL DEFAULT NOW(6),
+    DatumGewijzigd DATETIME(6) NULL DEFAULT NOW(6)
+) ENGINE=InnoDB;
+
+INSERT INTO Magazijn (Id, Ontvangstdatum, Uitleveringsdatum, VerpakkingsEenheid, Aantal) VALUES
+(1,  '2026-03-12', NULL, '5 kg',            20),
+(2,  '2026-04-02', NULL, '2.5 kg',          40),
+(3,  '2026-03-16', NULL, '1 kg',            30),
+(4,  '2026-04-08', NULL, '1.5 kg',          25),
+(5,  '2026-04-06', NULL, '4 stuks',         75),
+(6,  '2026-03-12', NULL, '1 kg/tros',       60),
+(7,  '2026-03-20', NULL, '2 kg/tros',      200),
+(8,  '2026-04-02', NULL, '200 g',           45),
+(9,  '2026-04-04', NULL, '100 g',           60),
+(10, '2026-04-07', NULL, '1 liter',        120),
+(11, '2026-04-01', NULL, '250 g',           80),
+(12, '2026-03-18', NULL, '6 stuks',        120),
+(13, '2026-03-19', NULL, '800 g',          220),
+(14, '2026-03-10', NULL, '1 stuk',         130),
+(15, '2026-03-13', NULL, '150 ml',          72),
+(16, '2026-03-18', NULL, '1 l',             12),
+(17, '2026-03-11', NULL, '250 g',          300),
+(18, '2026-04-02', NULL, '25 zakjes',      280),
+(19, '2026-04-09', NULL, '500 g',          330),
+(20, '2026-04-03', NULL, '1 kg',            34),
+(21, '2026-04-02', NULL, '50 g',            23),
+(22, '2026-03-16', NULL, '1 l',             46),
+(23, '2026-03-14', NULL, '250 ml',          98),
+(24, '2026-04-07', NULL, '1 potje',         56),
+(25, '2026-03-17', NULL, '1 l',            210),
+(26, '2026-04-05', NULL, '4 stuks',         24),
+(27, '2026-04-07', NULL, '300 g',           87),
+(28, '2026-04-06', NULL, '200 g',          230),
+(29, '2026-04-08', NULL, '80 g',            30);
+
+-- 14. ProductPerMagazijn
+CREATE TABLE ProductPerMagazijn (
+    Id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
+    ProductId MEDIUMINT UNSIGNED NOT NULL,
+    MagazijnId MEDIUMINT UNSIGNED NOT NULL,
+    Locatie VARCHAR(35) NOT NULL,
+    isactief BIT NOT NULL DEFAULT 1,
+    Opmerking VARCHAR(255) NULL,
+    DatumAangemaakt DATETIME(6) NOT NULL DEFAULT NOW(6),
+    DatumGewijzigd DATETIME(6) NULL DEFAULT NOW(6),
+    CONSTRAINT FK_ProductPerMagazijn_Product FOREIGN KEY (ProductId) REFERENCES Product(Id),
+    CONSTRAINT FK_ProductPerMagazijn_Magazijn FOREIGN KEY (MagazijnId) REFERENCES Magazijn(Id)
+) ENGINE=InnoDB;
+
+INSERT INTO ProductPerMagazijn (Id, ProductId, MagazijnId, Locatie) VALUES
+(1,  1,  1,  'Berlicum'),
+(2,  2,  2,  'Rosmalen'),
+(3,  3,  3,  'Berlicum'),
+(4,  4,  4,  'Berlicum'),
+(5,  5,  5,  'Rosmalen'),
+(6,  6,  6,  'Berlicum'),
+(7,  7,  7,  'Rosmalen'),
+(8,  8,  8,  'Sint-MichelsGestel'),
+(9,  9,  9,  'Sint-MichelsGestel'),
+(10, 10, 10, 'Middelrode'),
+(11, 11, 11, 'Middelrode'),
+(12, 12, 12, 'Middelrode'),
+(13, 13, 13, 'Schijndel'),
+(14, 14, 14, 'Schijndel'),
+(15, 15, 15, 'Gemonde'),
+(16, 16, 16, 'Gemonde'),
+(17, 17, 17, 'Gemonde'),
+(18, 18, 18, 'Gemonde'),
+(19, 19, 19, 'Den Bosch'),
+(20, 20, 20, 'Den Bosch'),
+(21, 21, 21, 'Den Bosch'),
+(22, 22, 22, 'Heeswijk Dinther'),
+(23, 23, 23, 'Heeswijk Dinther'),
+(24, 24, 24, 'Heeswijk Dinther'),
+(25, 25, 25, 'Vught'),
+(26, 26, 26, 'Vught'),
+(27, 27, 27, 'Vught'),
+(28, 28, 28, 'Vught'),
+(29, 29, 29, 'Vught');
