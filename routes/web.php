@@ -16,6 +16,10 @@ Route::get('/manager/overzicht-allergieen', [AllergieController::class, 'overzic
     ->middleware(['auth', 'verified', 'role:manager'])
     ->name('overzicht_allergieen');
 
+Route::get('/manager/allergieen-detail/{gezin_id}', [AllergieController::class, 'detail'])
+    ->middleware(['auth', 'verified', 'role:manager'])
+    ->name('allergieen_detail');
+
 Route::get('/dashboard', function () {
     if (auth()->user()->role === 'manager') {
         return redirect()->route('manager.dashboard');
