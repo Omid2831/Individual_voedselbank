@@ -46,15 +46,23 @@ class VoorraadController extends Controller
     public function show($id)
     {
         try {
-            $product = $this->voorraadModel->getProductById($id);
+            $product = null;
+
+            if (is_numeric($id)) {
+                $product = $this->voorraadModel->getProductById((int) $id);
+            }
 
             if ($product === null) {
-                Log::warning('Poging tot weergave van non-existent product - ID: ' . $id);
+                $product = $this->voorraadModel->getProductByName($id);
+            }
+
+            if ($product === null) {
+                Log::warning('Poging tot weergave van non-existent product - ID/Naam: ' . $id);
                 return redirect()->route('voorraad.overzicht')
                     ->with('error', 'Product niet gevonden');
             }
 
-            Log::info('Productdetailpagina weergegeven - Product ID: ' . $id);
+            Log::info('Productdetailpagina weergegeven - Product ID/Naam: ' . $id);
             return view('voorraad.show', compact('product'));
         } catch (\Exception $e) {
             Log::error('Fout bij weergave van productdetails: ' . $e->getMessage());
