@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function () {
     // get edit page for voorraad
     Route::get('/voorraad/edit/{id}', [VoorraadController::class, 'edit'])->name('voorraad.edit');
     // update voorraad
-    Route::post('/voorraad/update/{id}', [VoorraadController::class, 'update'])->name('voorraad.update');
+    Route::match(['put', 'post'], '/voorraad/update/{id}', [VoorraadController::class, 'update'])->name('voorraad.update');
 });
 
 
