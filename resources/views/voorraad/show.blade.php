@@ -61,7 +61,7 @@
 
                     <div class="mt-8 flex justify-between items-center gap-4">
                         @php
-                            $editId = $product->ProductId ?? ($product->Id ?? null);
+                            $editId = $product->ProductId ?? ($product->Id ?? ($product->ProductNaam ?? null));
                         @endphp
                         @if (Route::has('voorraad.edit') && $editId)
                             <a href="{{ route('voorraad.edit', $editId) }}"
