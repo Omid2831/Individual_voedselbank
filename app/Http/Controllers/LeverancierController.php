@@ -4,77 +4,121 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class LeverancierController extends Controller
 {
+    /* Display all active leveranciers */
     public function index()
     {
-        // Call stored procedure to get all leveranciers
-        $leveranciers = DB::select('CALL sp_getAllLeverancier()');
-        
-        return view('leverancier.index', compact('leveranciers'));
+        try {
+            $leveranciers = DB::select('CALL sp_getAllLeverancier()');
+            
+            return view('leverancier.index', compact('leveranciers'));
+        } catch (Exception $e) {
+            Log::error('Error fetching leveranciers: ' . $e->getMessage());
+            
+            return redirect()
+                ->route('dashboard')
+                ->with('error', 'Er is een fout opgetreden bij het ophalen van de leveranciers.');
+        }
     }
     
+    /* Display products for a specific leverancier */
     public function products($id)
     {
-        // Get leverancier details
-        $leveranciers = DB::select('CALL sp_getAllLeverancier()');
-        $leverancier = collect($leveranciers)->firstWhere('Id', $id);
-        
-        if (!$leverancier) {
-            return redirect()->route('leverancier.index')->with('error', 'Leverancier niet gevonden');
+        try {
+            // Get leverancier details
+            $leveranciers = DB::select('CALL sp_getAllLeverancier()');
+            $leverancier = collect($leveranciers)->firstWhere('Id', $id);
+            
+            if (!$leverancier) {
+                return redirect()
+                    ->route('leverancier.index')
+                    ->with('error', 'Leverancier niet gevonden');
+            }
+            
+            // Get products for this leverancier
+            $products = DB::select('CALL sp_getProductsByLeverancier(?)', [$id]);
+            
+            return view('leverancier.products', compact('leverancier', 'products'));
+        } catch (Exception $e) {
+            Log::error('Error fetching products for leverancier ' . $id . ': ' . $e->getMessage());
+            
+            return redirect()
+                ->route('leverancier.index')
+                ->with('error', 'Er is een fout opgetreden bij het ophalen van de producten.');
         }
-        
-        // Get products for this leverancier
-        $products = DB::select('CALL sp_getProductsByLeverancier(?)', [$id]);
-        
-        return view('leverancier.products', compact('leverancier', 'products'));
     }
     
+    /* Show form to edit product expiry date */
     public function editProduct($leverancierId, $productId)
     {
-        // Get leverancier details
-        $leveranciers = DB::select('CALL sp_getAllLeverancier()');
-        $leverancier = collect($leveranciers)->firstWhere('Id', $leverancierId);
-        
-        if (!$leverancier) {
-            return redirect()->route('leverancier.index')->with('error', 'Leverancier niet gevonden');
+        try {
+            // Get leverancier details
+            $leveranciers = DB::select('CALL sp_getAllLeverancier()');
+            $leverancier = collect($leveranciers)->firstWhere('Id', $leverancierId);
+            
+            if (!$leverancier) {
+                return redirect()
+                    ->route('leverancier.index')
+                    ->with('error', 'Leverancier niet gevonden');
+            }
+            
+            // Get product details
+            $products = DB::select('CALL sp_getProductsByLeverancier(?)', [$leverancierId]);
+            $product = collect($products)->firstWhere('Id', $productId);
+            
+            if (!$product) {
+                return redirect()
+                    ->route('leverancier.products', $leverancierId)
+                    ->with('error', 'Product niet gevonden');
+            }
+            
+            return view('leverancier.edit-product', compact('leverancier', 'product'));
+        } catch (Exception $e) {
+            Log::error('Error loading edit form for product ' . $productId . ': ' . $e->getMessage());
+            
+            return redirect()
+                ->route('leverancier.products', $leverancierId)
+                ->with('error', 'Er is een fout opgetreden bij het laden van het product.');
         }
-        
-        // Get product details
-        $products = DB::select('CALL sp_getProductsByLeverancier(?)', [$leverancierId]);
-        $product = collect($products)->firstWhere('Id', $productId);
-        
-        if (!$product) {
-            return redirect()->route('leverancier.products', $leverancierId)->with('error', 'Product niet gevonden');
-        }
-        
-        return view('leverancier.edit-product', compact('leverancier', 'product'));
     }
     
+    /* Update product expiry date with validation (max 7 days extension) */
     public function updateProduct(Request $request, $leverancierId, $productId)
     {
         $request->validate([
             'houdbaarheidsdatum' => 'required|date'
         ]);
         
-        // Call stored procedure with OUT parameters
-        $result = DB::select('CALL sp_updateProductHoudbaarheidsdatum(?, ?, @result, @message)', [
-            $productId,
-            $request->houdbaarheidsdatum
-        ]);
-        
-        // Get OUT parameters
-        $output = DB::select('SELECT @result as result, @message as message')[0];
-        
-        if ($output->result == 1) {
+        try {
+            // Call stored procedure with validation
+            DB::select('CALL sp_updateProductHoudbaarheidsdatum(?, ?, @result, @message)', [
+                $productId,
+                $request->houdbaarheidsdatum
+            ]);
+            
+            // Get result from stored procedure
+            $output = DB::select('SELECT @result as result, @message as message')[0];
+            
+            if ($output->result == 1) {
+                return redirect()
+                    ->route('leverancier.product.edit', [$leverancierId, $productId])
+                    ->with('success', $output->message);
+            } else {
+                return redirect()
+                    ->route('leverancier.product.edit', [$leverancierId, $productId])
+                    ->with('error', $output->message)
+                    ->withInput();
+            }
+        } catch (Exception $e) {
+            Log::error('Error updating product ' . $productId . ': ' . $e->getMessage());
+            
             return redirect()
                 ->route('leverancier.product.edit', [$leverancierId, $productId])
-                ->with('success', $output->message);
-        } else {
-            return redirect()
-                ->route('leverancier.product.edit', [$leverancierId, $productId])
-                ->with('error', $output->message)
+                ->with('error', 'Er is een fout opgetreden bij het wijzigen van de houdbaarheidsdatum.')
                 ->withInput();
         }
     }
