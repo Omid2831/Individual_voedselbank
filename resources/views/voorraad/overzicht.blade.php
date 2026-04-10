@@ -74,9 +74,23 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $item->Magazijn ?? '~' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                                                    <i class="fa fa-pencil"></i> Edit
-                                                </a>
+                                                @php
+                                                    $detailId = $item->ProductId ?? ($item->Id ?? null);
+                                                    $detailName = $item->ProductNaam ?? null;
+                                                @endphp
+                                                @if ($detailId)
+                                                    <a href="{{ route('voorraad.show', $detailId) }}"
+                                                        class="text-indigo-600 hover:text-indigo-900">
+                                                        <i class="fa fa-pencil"></i> Details
+                                                    </a>
+                                                @elseif ($detailName)
+                                                    <a href="{{ route('voorraad.show', urlencode($detailName)) }}"
+                                                        class="text-indigo-600 hover:text-indigo-900">
+                                                        <i class="fa fa-pencil"></i> Details
+                                                    </a>
+                                                @else
+                                                    <span class="text-gray-400">Details niet beschikbaar</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
