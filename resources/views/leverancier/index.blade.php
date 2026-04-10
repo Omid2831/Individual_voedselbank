@@ -65,7 +65,13 @@
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $leverancier->Naam }}</td>
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $leverancier->ContactPersoon }}</td>
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $leverancier->Email ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $leverancier->Mobiel ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 border-b text-sm text-gray-800 whitespace-nowrap">
+                                        @if($leverancier->Mobiel)
+                                            {{ preg_replace('/(\+31)\s*(\d{1})(\d{8})/', '$1 $2 $3', $leverancier->Mobiel) }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $leverancier->LeverancierNummer }}</td>
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $leverancier->LeverancierType }}</td>
                                     <td class="px-6 py-4 border-b text-center">
