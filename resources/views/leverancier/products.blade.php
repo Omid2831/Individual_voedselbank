@@ -37,7 +37,9 @@
                                     <th class="px-6 py-3 border-b text-left text-sm font-semibold text-gray-700">Soort Allergie</th>
                                     <th class="px-6 py-3 border-b text-left text-sm font-semibold text-gray-700">Barcode</th>
                                     <th class="px-6 py-3 border-b text-left text-sm font-semibold text-gray-700">Houdbaarheidsdatum</th>
+                                    @if(auth()->user()->role === 'manager')
                                     <th class="px-6 py-3 border-b text-center text-sm font-semibold text-gray-700">Wijzig Product</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,6 +49,7 @@
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $product->SoortAllergie ?? 'Geen' }}</td>
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ $product->Barcode }}</td>
                                     <td class="px-6 py-4 border-b text-sm text-gray-800">{{ \Carbon\Carbon::parse($product->Houdbaarheidsdatum)->format('d-m-Y') }}</td>
+                                    @if(auth()->user()->role === 'manager')
                                     <td class="px-6 py-4 border-b text-center">
                                         <a href="{{ route('leverancier.product.edit', [$leverancier->Id, $product->Id]) }}" class="text-blue-600 hover:text-blue-800">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,10 +57,11 @@
                                             </svg>
                                         </a>
                                     </td>
+                                    @endif
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Geen producten gevonden voor deze leverancier</td>
+                                    <td colspan="{{ auth()->user()->role === 'manager' ? '5' : '4' }}" class="px-6 py-4 text-center text-gray-500">Geen producten gevonden voor deze leverancier</td>
                                 </tr>
                                 @endforelse
                             </tbody>
