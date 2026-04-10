@@ -21,7 +21,7 @@
                     Allergie wijzigen voor: <span class="text-blue-600">{{ $persoonAllergie->VolledigeNaam }}</span>
                 </h1>
 
-                <form method="POST" action="{{ route('allergieen_update', ['id' => $persoonAllergie->AllergiePerPersoonId ?? $persoonAllergie->PersoonId]) }}">
+                <form method="POST" action="{{ route('allergieen_update', ['persoon_id' => $persoonAllergie->PersoonId]) }}">
                     @csrf
                     
                     <div class="mb-4">

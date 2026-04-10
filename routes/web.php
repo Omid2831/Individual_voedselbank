@@ -20,11 +20,11 @@ Route::get('/manager/allergieen-detail/{gezin_id}', [AllergieController::class, 
     ->middleware(['auth', 'verified', 'role:manager'])
     ->name('allergieen_detail');
 
-Route::get('/manager/allergieen-edit/{id}', [AllergieController::class, 'edit'])
+Route::get('/manager/allergieen-edit/{persoon_id}', [AllergieController::class, 'edit'])
     ->middleware(['auth', 'verified', 'role:manager'])
     ->name('allergieen_edit');
 
-Route::post('/manager/allergieen-update/{id}', [AllergieController::class, 'update'])
+Route::post('/manager/allergieen-update/{persoon_id}', [AllergieController::class, 'update'])
     ->middleware(['auth', 'verified', 'role:manager'])
     ->name('allergieen_update');
 
