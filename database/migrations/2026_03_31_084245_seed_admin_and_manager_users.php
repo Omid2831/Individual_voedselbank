@@ -15,18 +15,26 @@ return new class extends Migration
     {
         DB::table('users')->insert([
             [
-                'name' => 'Admin User',
-                'email' => 'admin@example.com',
+                'name' => 'Hans',
+                'email' => 'hans@maaskantje.nl',
                 'password' => Hash::make('12345678'),
-                'role' => 'admin',
+                'role' => 'manager',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Manager User',
-                'email' => 'manager@example.com',
+                'name' => 'Jan',
+                'email' => 'jan@maaskantje.nl',
                 'password' => Hash::make('12345678'),
-                'role' => 'manager',
+                'role' => 'medewerker',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => ' Herman',
+                'email' => 'herman@maaskantje.nl',
+                'password' => Hash::make('12345678'),
+                'role' => 'vrijwilliger',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -38,6 +46,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::table('users')->whereIn('email', ['admin@example.com', 'manager@example.com'])->delete();
+        DB::table('users')->whereIn('email', ['hans@maaskantje.nl', 'jan@maaskantje.nl', 'herman@maaskantje.nl'])->delete();
     }
 };

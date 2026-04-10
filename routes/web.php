@@ -9,17 +9,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware(['auth', 'verified', 'role:admin'])->name('admin.dashboard');
 Route::get('/manager/dashboard', [ManagerController::class, 'index'])->middleware(['auth', 'verified', 'role:manager'])->name('manager.dashboard');
 
 Route::get('/dashboard', function () {
-    if (auth()->user()->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
     if (auth()->user()->role === 'manager') {
         return redirect()->route('manager.dashboard');
     }
-    abort(403);
+    
+    // Medewerker, Vrijwilliger (en overige rollen) gaan naar het standaard dashboard.
+    return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
