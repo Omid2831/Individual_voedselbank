@@ -67,13 +67,12 @@ public function overzicht(Request $request)
     /**
      * Toont het formulier om een allergie te wijzigen.
      */
-    public function edit($id)
+    public function edit($persoon_id)
     {
-        // $id is hier de PersoonId
-        $persoonAllergie = Allergie::getPersoonAllergie($id);
+        $persoonAllergie = Allergie::getPersoonAllergie($persoon_id);
 
         if (!$persoonAllergie) {
-            abort(404, 'Gezinslid niet gevonden of heeft geen allergie om te wijzigen.');
+            abort(404, 'Gezinslid niet gevonden.');
         }
 
         $allAllergies = Allergie::getAllAllergies();
@@ -87,23 +86,18 @@ public function overzicht(Request $request)
     /**
      * Slaat de gewijzigde allergie op.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $persoon_id)
     {
-        // $id is hier de AllergiePerPersoonId
         $request->validate([
             'allergie_id' => 'required|exists:Allergie,Id'
         ]);
 
-        // Haal GezinId op voor de redirect later (via de koppeltabel)
-        $gezinInfo = DB::table('AllergiePerPersoon')
-            ->join('Persoon', 'Persoon.Id', '=', 'AllergiePerPersoon.PersoonId')
-            ->where('AllergiePerPersoon.Id', $id)
-            ->select('Persoon.GezinId')
-            ->first();
+        // Haal GezinId ALTIJD op via de Persoon tabel (veel betrouwbaarder dan via mapping tabel)
+        $persoon = DB::table('Persoon')->where('Id', $persoon_id)->first();
+        $gezinId = $persoon ? $persoon->GezinId : null;
 
-        $gezinId = $gezinInfo ? $gezinInfo->GezinId : null;
-
-        Allergie::updatePersoonAllergie($id, $request->input('allergie_id'));
+        // Gebruik de nieuwe sync methode die INSERT of UPDATE afhandelt
+        Allergie::syncPersoonAllergie($persoon_id, $request->input('allergie_id'));
 
         return view('allergeen.allergeen_gewijzigd', compact('gezinId'));
     }
