@@ -12,16 +12,21 @@
                     
                     <!-- Success Message -->
                     @if(session('success'))
-                    <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded">
+                    <div id="successMessage" class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         <p class="font-medium">{{ session('success') }}</p>
                     </div>
                     @endif
 
                     <!-- Error Message -->
                     @if(session('error'))
-                    <div class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                    <div id="errorMessage" class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         <p class="font-medium">{{ session('error') }}</p>
-                        <p class="text-sm mt-1">De houdbaarheidsdatum mag met maximaal 7 dagen worden verlengd</p>
                     </div>
                     @endif
 
@@ -38,6 +43,7 @@
                                 id="houdbaarheidsdatum" 
                                 name="houdbaarheidsdatum" 
                                 value="{{ old('houdbaarheidsdatum', \Carbon\Carbon::parse($product->Houdbaarheidsdatum)->format('Y-m-d')) }}"
+                                min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
                                 class="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             >
@@ -70,4 +76,30 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Auto-hide success message after 5 seconds
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.transition = 'opacity 0.5s ease-out';
+                successMessage.style.opacity = '0';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+
+        // Auto-hide error message after 5 seconds
+        const errorMessage = document.getElementById('errorMessage');
+        if (errorMessage) {
+            setTimeout(() => {
+                errorMessage.style.transition = 'opacity 0.5s ease-out';
+                errorMessage.style.opacity = '0';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+    </script>
 </x-app-layout>
