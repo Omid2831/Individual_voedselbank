@@ -11,10 +11,6 @@
                 <div class="p-6 text-gray-900">
                     {{ __("You're logged in!") }} <br>
                     {{ "This is the manager page" }}
-                    @dump([
-                        'username' => auth()->user()->name,
-                        'role' => auth()->user()->role,
-                    ])
                 </div>
             </div>
         </div>
