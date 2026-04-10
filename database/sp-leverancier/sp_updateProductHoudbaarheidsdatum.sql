@@ -21,21 +21,27 @@ BEGIN
     FROM Product
     WHERE Id = p_ProductId;
     
-    -- Calculate difference in days
-    SET v_DagenVerschil = DATEDIFF(p_NieuweHoudbaarheidsdatum, v_OudeHoudbaarheidsdatum);
-    
-    -- Validate: maximum 7 days extension
-    IF v_DagenVerschil > 7 THEN
+    -- Check if new date is in the past
+    IF p_NieuweHoudbaarheidsdatum < CURDATE() THEN
         SET p_Result = 0;
-        SET p_Message = 'De houdbaarheidsdatum mag met maximaal 7 dagen worden verlengd';
+        SET p_Message = 'De houdbaarheidsdatum mag niet in het verleden liggen';
     ELSE
-        -- Update the product
-        UPDATE Product
-        SET Houdbaarheidsdatum = p_NieuweHoudbaarheidsdatum,
-            DatumGewijzigd = NOW(6)
-        WHERE Id = p_ProductId;
+        -- Calculate difference in days
+        SET v_DagenVerschil = DATEDIFF(p_NieuweHoudbaarheidsdatum, v_OudeHoudbaarheidsdatum);
         
-        SET p_Result = 1;
-        SET p_Message = 'De houdbaarheidsdatum is gewijzigd';
+        -- Validate: maximum 7 days extension
+        IF v_DagenVerschil > 7 THEN
+            SET p_Result = 0;
+            SET p_Message = 'De houdbaarheidsdatum mag met maximaal 7 dagen worden verlengd';
+        ELSE
+            -- Update the product
+            UPDATE Product
+            SET Houdbaarheidsdatum = p_NieuweHoudbaarheidsdatum,
+                DatumGewijzigd = NOW(6)
+            WHERE Id = p_ProductId;
+            
+            SET p_Result = 1;
+            SET p_Message = 'De houdbaarheidsdatum is gewijzigd';
+        END IF;
     END IF;
 END;
