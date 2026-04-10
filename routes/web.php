@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/leverancier', [LeverancierController::class, 'index'])
         ->middleware('role:manager,medewerker')
         ->name('leverancier.index');
+    Route::get('/leverancier/{id}/products', [LeverancierController::class, 'products'])
+        ->middleware('role:manager,medewerker')
+        ->name('leverancier.products');
 });
 
 

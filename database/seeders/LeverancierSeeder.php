@@ -16,6 +16,7 @@ class LeverancierSeeder extends Seeder
         // Read and execute the SQL files
         $createTablesSQL = file_get_contents(database_path('sp-leverancier/00-create-tables.sql'));
         $storedProcSQL = file_get_contents(database_path('sp-leverancier/sp_getAllLeverancier.sql'));
+        $getProductsSQL = file_get_contents(database_path('sp-leverancier/sp_getProductsByLeverancier.sql'));
         
         // Execute create tables SQL
         DB::unprepared($createTablesSQL);
@@ -24,5 +25,9 @@ class LeverancierSeeder extends Seeder
         // Execute stored procedure SQL
         DB::unprepared($storedProcSQL);
         echo "✓ Stored procedure sp_getAllLeverancier created\n";
+        
+        // Execute get products stored procedure
+        DB::unprepared($getProductsSQL);
+        echo "✓ Stored procedure sp_getProductsByLeverancier created\n";
     }
 }
