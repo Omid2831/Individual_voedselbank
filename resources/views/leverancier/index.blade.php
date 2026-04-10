@@ -160,18 +160,32 @@
             const rows = document.querySelectorAll('.leverancier-row');
             const warningMessage = document.getElementById('warningMessage');
             let visibleCount = 0;
+            let hasValidEmailCount = 0;
             
             rows.forEach(row => {
                 if (selectedType === '' || selectedType === 'Selecteer LeverancierType' || row.dataset.type === selectedType) {
-                    row.style.display = '';
-                    visibleCount++;
+                    const email = row.dataset.email;
+                    
+                    // Only show rows with valid email (not N/A)
+                    if (email !== 'N/A' && email !== '') {
+                        row.style.display = '';
+                        visibleCount++;
+                        hasValidEmailCount++;
+                    } else if (selectedType === '' || selectedType === 'Selecteer LeverancierType') {
+                        // Show all when no filter selected
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        // Hide rows without email when filtering
+                        row.style.display = 'none';
+                    }
                 } else {
                     row.style.display = 'none';
                 }
             });
             
-            // Show warning if no leveranciers found for selected type
-            if (selectedType !== '' && selectedType !== 'Selecteer LeverancierType' && visibleCount === 0) {
+            // Show warning if selected type has no leveranciers with valid email
+            if (selectedType !== '' && selectedType !== 'Selecteer LeverancierType' && hasValidEmailCount === 0) {
                 warningMessage.classList.remove('hidden');
             } else {
                 warningMessage.classList.add('hidden');
