@@ -13,11 +13,17 @@
                     <div class="mb-6 flex justify-end">
                         <form action="{{ route('voorraad.overzicht') }}" method="GET" class="flex gap-4">
                             <select name="categorie"
-                                class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="">Selecteer Categorie</option>
+                                @foreach ($categories as $cat)
+                                    <option value="{{ $cat->Naam }}"
+                                        {{ $categorie === $cat->Naam ? 'selected' : '' }}>
+                                        {{ $cat->Naam }}
+                                    </option>
+                                @endforeach
                             </select>
                             <button type="submit"
-                                class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                                 Toon Voorraad
                             </button>
                         </form>
@@ -36,13 +42,16 @@
                                         Categorie</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Eenheid</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Aantal</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Houdbaarheidsdatum</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Leverancier</th>
+                                        Magazijn</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Voorraad Details</th>
@@ -57,11 +66,13 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $item->Categorie ?? '~' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $item->Eenheid ?? '~' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $item->Aantal ?? '~' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $item->Houdbaarheidsdatum ?? '~' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $item->Leverancier ?? '~' }}</td>
+                                                {{ $item->Magazijn ?? '~' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <a href="#" class="text-indigo-600 hover:text-indigo-900">
                                                     <i class="fa fa-pencil"></i> Edit
