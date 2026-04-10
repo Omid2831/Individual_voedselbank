@@ -16,7 +16,7 @@ Route::get('/dashboard', function () {
     if (auth()->user()->role === 'manager') {
         return redirect()->route('manager.dashboard');
     }
-    
+
     // Medewerker, Vrijwilliger (en overige rollen) gaan naar het standaard dashboard.
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/voorraad/overzicht', [VoorraadController::class, 'overzicht'])->name('voorraad.overzicht');
+    Route::get('/voorraad/show/{name}', [VoorraadController::class, 'show'])->name('voorraad.show');
 });
 
 
