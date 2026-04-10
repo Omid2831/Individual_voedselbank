@@ -9,6 +9,10 @@
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
                 <div class="p-8 bg-white">
+                    @php
+                        $routeIdentifier =
+                            $identifier ?? ($product->ProductId ?? ($product->Id ?? ($product->ProductNaam ?? null)));
+                    @endphp
                     <h3 class="text-4xl font-semibold text-green-600 mb-8 underline decoration-1">
                         Wijzig Product Details {{ $product->Productnaam ?? ($product->ProductNaam ?? '~') }}
                     </h3>
@@ -26,7 +30,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('voorraad.update', $product->Id) }}" class="space-y-6">
+                    <form method="POST" action="{{ route('voorraad.update', $routeIdentifier) }}" class="space-y-6">
                         @csrf
                         @method('PUT')
 
@@ -95,7 +99,7 @@
                             </button>
 
                             <div class="flex justify-end gap-3">
-                                <a href="{{ route('voorraad.show', $product->Id) }}"
+                                <a href="{{ route('voorraad.show', $routeIdentifier) }}"
                                     class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-xl">
                                     terug
                                 </a>
