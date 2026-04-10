@@ -101,10 +101,10 @@ class VoorraadModel extends Model
                     ->where('p.Id', (int) $productId)
                     ->selectRaw(
                         "p.Id, p.Id as ProductId, p.Naam as ProductNaam, p.Naam as Productnaam, p.Barcode, " .
-                        "DATE_FORMAT(p.Houdbaarheidsdatum, '%d-%m-%Y') as HoudbaarheidsdatumFormatted, " .
-                        "DATE_FORMAT(m.Ontvangstdatum, '%d-%m-%Y') as OntvangstdatumFormatted, " .
-                        "DATE_FORMAT(m.Uitleveringsdatum, '%d-%m-%Y') as UitleveringsdatumFormatted, " .
-                        "m.Aantal, ppm.Locatie as MagazijnLocatie"
+                            "DATE_FORMAT(p.Houdbaarheidsdatum, '%d-%m-%Y') as HoudbaarheidsdatumFormatted, " .
+                            "DATE_FORMAT(m.Ontvangstdatum, '%d-%m-%Y') as OntvangstdatumFormatted, " .
+                            "DATE_FORMAT(m.Uitleveringsdatum, '%d-%m-%Y') as UitleveringsdatumFormatted, " .
+                            "m.Aantal, ppm.Locatie as MagazijnLocatie"
                     )
                     ->first();
 
