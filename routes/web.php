@@ -10,6 +10,23 @@ Route::get('/', function () {
 });
 
 Route::get('/manager/dashboard', [ManagerController::class, 'index'])->middleware(['auth', 'verified', 'role:manager'])->name('manager.dashboard');
+use App\Http\Controllers\AllergieController;
+
+Route::get('/manager/overzicht-allergieen', [AllergieController::class, 'overzicht'])
+    ->middleware(['auth', 'verified', 'role:manager'])
+    ->name('overzicht_allergieen');
+
+Route::get('/manager/allergieen-detail/{gezin_id}', [AllergieController::class, 'detail'])
+    ->middleware(['auth', 'verified', 'role:manager'])
+    ->name('allergieen_detail');
+
+Route::get('/manager/allergieen-edit/{persoon_id}', [AllergieController::class, 'edit'])
+    ->middleware(['auth', 'verified', 'role:manager'])
+    ->name('allergieen_edit');
+
+Route::post('/manager/allergieen-update/{persoon_id}', [AllergieController::class, 'update'])
+    ->middleware(['auth', 'verified', 'role:manager'])
+    ->name('allergieen_update');
 
 Route::get('/dashboard', function () {
     if (auth()->user()->role === 'manager') {
