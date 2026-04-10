@@ -54,6 +54,17 @@ class VoorraadController extends Controller
 
             if ($product === null) {
                 $product = $this->voorraadModel->getProductByName($id);
+
+                // When route parameter is a name, enrich with full detail payload by id.
+                if ($product !== null) {
+                    $resolvedId = $product->ProductId ?? ($product->Id ?? null);
+                    if ($resolvedId) {
+                        $fullProduct = $this->voorraadModel->getProductById((int) $resolvedId);
+                        if ($fullProduct !== null) {
+                            $product = $fullProduct;
+                        }
+                    }
+                }
             }
 
             if ($product === null) {
@@ -77,16 +88,22 @@ class VoorraadController extends Controller
     public function edit($id)
     {
         try {
-            $product = $this->voorraadModel->getProductById($id);
+            $product = null;
+
+            if (is_numeric($id)) {
+                $product = $this->voorraadModel->getProductById((int) $id);
+            }
 
             if ($product === null) {
-                return redirect()->route('voorraad.overzicht')
-                    ->with('error', 'Product niet gevonden');
+                $product = $this->voorraadModel->getProductByName($id);
             }
+
+
+            $identifier = $product->ProductId ?? ($product->Id ?? ($product->ProductNaam ?? $id));
 
             $locaties = $this->voorraadModel->getMagazijnLocaties();
 
-            return view('voorraad.edit', compact('product', 'locaties'));
+            return view('voorraad.edit', compact('product', 'locaties', 'identifier'));
         } catch (\Exception $e) {
             Log::error('Fout bij laden van wijzigpagina: ' . $e->getMessage());
             return redirect()->route('voorraad.overzicht')
