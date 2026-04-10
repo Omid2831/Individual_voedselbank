@@ -17,6 +17,7 @@ class LeverancierSeeder extends Seeder
         $createTablesSQL = file_get_contents(database_path('sp-leverancier/00-create-tables.sql'));
         $storedProcSQL = file_get_contents(database_path('sp-leverancier/sp_getAllLeverancier.sql'));
         $getProductsSQL = file_get_contents(database_path('sp-leverancier/sp_getProductsByLeverancier.sql'));
+        $updateProductSQL = file_get_contents(database_path('sp-leverancier/sp_updateProductHoudbaarheidsdatum.sql'));
         
         // Execute create tables SQL
         DB::unprepared($createTablesSQL);
@@ -29,5 +30,9 @@ class LeverancierSeeder extends Seeder
         // Execute get products stored procedure
         DB::unprepared($getProductsSQL);
         echo "✓ Stored procedure sp_getProductsByLeverancier created\n";
+        
+        // Execute update product stored procedure
+        DB::unprepared($updateProductSQL);
+        echo "✓ Stored procedure sp_updateProductHoudbaarheidsdatum created\n";
     }
 }
