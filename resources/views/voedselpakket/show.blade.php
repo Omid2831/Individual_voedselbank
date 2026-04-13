@@ -7,6 +7,12 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white p-8 shadow-md rounded-lg">
+
+            @if(session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-center font-bold">
+                        {{ session('success') }}
+                    </div>
+                @endif
             
             <table class="mb-10 border-collapse border border-gray-200">
                 <tr>
@@ -44,7 +50,7 @@
                                 <td class="px-4 py-3 text-sm text-gray-600 border-r border-gray-200 italic">{{ $pakket->Status }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-600 border-r border-gray-200 text-center">{{ $pakket->AantalProducten ?? 0 }}</td>
                                 <td class="px-4 py-3 text-center">
-                                    <a href="{{ route('voedselpakket.edit', $gezin->GezinId) }}" title="Bekijk details" class="text-xl">
+                                    <a href="{{ route('voedselpakket.edit', $pakket->PakketId) }}" title="Bekijk details" class="text-xl">
                                             ✏️
                                         </a>
                                 </td>

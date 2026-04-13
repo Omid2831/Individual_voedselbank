@@ -75,53 +75,37 @@ class VoedselpakketController extends Controller
      */
     public function edit($id)
     {
-        // 1. Haal de data op via de procedure
-        $result = Voedselpakket::getPakketVoorEdit($id);
+        // Haal het pakket op via het Model
+        $pakket = Voedselpakket::getPakketVoorEdit($id);
 
-        // 2. Als er GEEN resultaat is, stop dan (Scenario: pakket bestaat niet)
-        if (empty($result)) {
+        // Als het pakket niet bestaat, geef een 404
+        if (! $pakket) {
             abort(404);
         }
 
-        // 3. Pak het eerste (en enige) object uit de array
-        $pakket = $result[0];
+        // Check of het GEZIN geblokkeerd is
+        // Omdat getPakketVoorEdit een object teruggeeft, werkt $pakket->GezinId hier:
+        $isGezinGeblokkeerd = DB::table('Voedselpakket')
+            ->where('GezinId', $pakket->GezinId)
+            ->where('Status', 'NietMeerIngeschreven')
+            ->exists();
 
-        // 4. Stuur de data naar de view (DEZE MOET BUITEN DE IF)
-        return view('voedselpakket.edit', compact('pakket'));
+        return view('voedselpakket.edit', compact('pakket', 'isGezinGeblokkeerd'));
     }
 
     public function update(Request $request, $id)
     {
-        // Validatie
-        $request->validate([
-            'status' => 'required|string|max:255',
-        ]);
-
-        $status = $request->input('status');
-
-        // Controleer of status "NietMeerIngeschreven" is
-        if ($status === 'NietMeerIngeschreven') {
-            return back()->withErrors('Dit gezin is niet meer ingeschreven bij de voedselbank en daarom kan er geen voedselpakket');
-        }
-
         try {
-            // Als status "Uitgereikt" is, zet DatumUitgifte op NOW()
-            $updateFields = 'Status = ?';
-            $updateValues = [$status];
+            // Haal gezinId op voor de redirect later
+            $gezinId = DB::table('Voedselpakket')->where('Id', $id)->value('GezinId');
 
-            if ($status === 'Uitgereikt') {
-                $updateFields .= ', DatumUitgifte = NOW()';
-            }
+            // HIER maak je de connectie met het model
+            Voedselpakket::updatePakketStatus($id, $request->status);
 
-            // Update uitvoeren via een raw query
-            DB::update('UPDATE Voedselpakket SET ' . $updateFields . ' WHERE Id = ?', 
-                array_merge($updateValues, [$id])
-            );
-
-            return redirect()->route('voedselpakket.show', $id)->with('success', 'Pakket succesvol bijgewerkt.');
-
+            return redirect()->route('voedselpakket.show', $gezinId)->with('success', '');
         } catch (\Exception $e) {
-            return back()->withErrors('Fout bij bijwerken: '.$e->getMessage());
+            // Als de model/procedure een error geeft, kom je hier
+            return redirect()->back()->with('error', 'Update mislukt: '.$e->getMessage());
         }
     }
 
