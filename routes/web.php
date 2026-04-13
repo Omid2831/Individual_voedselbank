@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/vrijwilliger/voedselpakketten', [VoedselpakketController::class, 'index'])->middleware(['auth', 'verified', 'role:manager,vrijwilliger'])->name('voedselpakket.index');
 Route::get('/vrijwilliger/show/{id}', [VoedselpakketController::class, 'show'])->middleware(['auth', 'verified', 'role:manager,vrijwilliger'])->name('voedselpakket.show');
 Route::get('/vrijwilliger/edit/{id}', [VoedselpakketController::class, 'edit'])->middleware(['auth', 'verified', 'role:manager,vrijwilliger'])->name('voedselpakket.edit');
-Route::put('/vrijwilliger/update/{id}', [VoedselpakketController::class, 'update'])->middleware(['auth', 'verified', 'role:manager,vrijwilliger'])->name('voedselpakket.update');
+Route::put('/vrijwilliger/update/{pakketNummer}', [VoedselpakketController::class, 'update'])->middleware(['auth', 'verified', 'role:manager,vrijwilliger'])->name('voedselpakket.update');
 
 
 require __DIR__ . '/auth.php';
