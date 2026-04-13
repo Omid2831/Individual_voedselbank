@@ -102,7 +102,7 @@ class VoedselpakketController extends Controller
             // HIER maak je de connectie met het model
             Voedselpakket::updatePakketStatus($id, $request->status);
 
-            return redirect()->route('voedselpakket.show', $gezinId)->with('success', '');
+            return redirect()->route('voedselpakket.show', $gezinId)->with('success', 'Het Gezin is succesvol bijgewerkt.');
         } catch (\Exception $e) {
             // Als de model/procedure een error geeft, kom je hier
             return redirect()->back()->with('error', 'Update mislukt: '.$e->getMessage());
