@@ -14,20 +14,60 @@ class Voedselpakket extends Model
      */
     public static function getOverzicht($eetwensId)
     {
-        // De procedure heeft zelf al een IF-ELSE, dus we sturen het ID gewoon door
-        $resultDB = DB::select('CALL spGetGezinOverzicht(?)', [$eetwensId]);
+        try {
+            // Omdat de procedure zelf al een IF-ELSE heeft, sturen we het ID gewoon door. Als het null is, zorgt de procedure voor de volledige lijst.
+            $resultDB = DB::select('CALL spGetGezinOverzicht(?)', [$eetwensId]);
 
-        return $resultDB;
+            return $resultDB;
+        } catch (\Exception $e) {
+            // Log de fout of handel deze af zoals gewenst
+            log('Error in getOverzicht: '.$e->getMessage());
+
+            return null;
+        }
     }
 
     public static function getPakkettenByGezin($gezinId)
     {
-        return DB::select('CALL spGetPakketDetailsPerGezin(?)', [$gezinId]);
+        try {
+            $result = DB::select('CALL spGetPakketDetailsPerGezin(?)', [$gezinId]);
+
+            return $result;
+        } catch (\Exception $e) {
+            // Log de fout of handel deze af zoals gewenst
+            log('Error in getPakkettenByGezin: '.$e->getMessage());
+
+            return null;
+        }
     }
 
     public static function getPakketVoorEdit($id)
     {
-        // Zorg dat de procedure 'G.Status AS GezinStatus' teruggeeft!
-        return DB::select('CALL spGetPakketVoorEdit(?)', [$id]);
+        try {
+            // selectOne zorgt ervoor dat je direct 1 object krijgt in plaats van een array
+            $result = DB::selectOne('CALL spGetPakketVoorEdit(?)', [$id]);
+
+            return $result;
+        } catch (\Exception $e) {
+            // Belangrijk: gebruik \Log::error in plaats van log()
+            \Log::error('Error in getPakketVoorEdit: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    public static function updatePakketStatus($id, $status)
+    {
+        // Als je wilt, kun je ook een try-catch blok toevoegen om eventuele fouten af te handelen
+        try {
+            DB::statement('CALL spUpdatePakket(?, ?)', [$id, $status]);
+
+            return true;
+        } catch (\Exception $e) {
+            // Log de fout of handel deze af zoals gewenst
+            log('Error in updatePakketStatus: '.$e->getMessage());
+
+            return false;
+        }
     }
 }
