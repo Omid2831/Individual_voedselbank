@@ -19,11 +19,11 @@ class Voedselpakket extends Model
             $resultDB = DB::select('CALL spGetGezinOverzicht(?)', [$eetwensId]);
 
             return $resultDB;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log de fout of handel deze af zoals gewenst
-            log('Error in getOverzicht: '.$e->getMessage());
+            \Log::error('Error in getOverzicht: ' . $e->getMessage());
 
-            return null;
+            return [];
         }
     }
 
@@ -33,11 +33,11 @@ class Voedselpakket extends Model
             $result = DB::select('CALL spGetPakketDetailsPerGezin(?)', [$gezinId]);
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log de fout of handel deze af zoals gewenst
-            log('Error in getPakkettenByGezin: '.$e->getMessage());
+            \Log::error('Error in getPakkettenByGezin: ' . $e->getMessage());
 
-            return null;
+            return [];
         }
     }
 
@@ -48,9 +48,9 @@ class Voedselpakket extends Model
             $result = DB::selectOne('CALL spGetPakketVoorEdit(?)', [$id]);
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Belangrijk: gebruik \Log::error in plaats van log()
-            \Log::error('Error in getPakketVoorEdit: '.$e->getMessage());
+            \Log::error('Error in getPakketVoorEdit: ' . $e->getMessage());
 
             return null;
         }
@@ -63,9 +63,9 @@ class Voedselpakket extends Model
             DB::statement('CALL spUpdatePakket(?, ?)', [$id, $status]);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log de fout of handel deze af zoals gewenst
-            log('Error in updatePakketStatus: '.$e->getMessage());
+            \Log::error('Error in updatePakketStatus: ' . $e->getMessage());
 
             return false;
         }
