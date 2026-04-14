@@ -29,10 +29,13 @@ BEGIN
         -- Calculate difference in days
         SET v_DagenVerschil = DATEDIFF(p_NieuweHoudbaarheidsdatum, v_OudeHoudbaarheidsdatum);
         
-        -- Validate: maximum 7 days extension
+        -- Validate: maximum 7 days extension (positive difference only)
         IF v_DagenVerschil > 7 THEN
             SET p_Result = 0;
             SET p_Message = 'De houdbaarheidsdatum mag met maximaal 7 dagen worden verlengd';
+        ELSEIF v_DagenVerschil < 0 THEN
+            SET p_Result = 0;
+            SET p_Message = 'De houdbaarheidsdatum mag niet worden verkort';
         ELSE
             -- Update the product
             UPDATE Product
