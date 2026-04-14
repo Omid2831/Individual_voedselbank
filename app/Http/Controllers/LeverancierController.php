@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\Leverancier;
 use Exception;
 
 class LeverancierController extends Controller
@@ -13,7 +13,7 @@ class LeverancierController extends Controller
     public function index()
     {
         try {
-            $leveranciers = DB::select('CALL sp_getAllLeverancier()');
+            $leveranciers = Leverancier::getAllLeveranciers();
             
             return view('leverancier.index', compact('leveranciers'));
         } catch (Exception $e) {
@@ -29,11 +29,8 @@ class LeverancierController extends Controller
     public function products($id)
     {
         try {
-            // Get leverancier details directly from database
-            $leverancier = DB::table('Leverancier')
-                ->where('Id', $id)
-                ->where('IsActive', 1)
-                ->first();
+            // Get leverancier details
+            $leverancier = Leverancier::getLeverancierById($id);
             
             if (!$leverancier) {
                 Log::warning('Leverancier not found with ID: ' . $id);
@@ -44,8 +41,8 @@ class LeverancierController extends Controller
             
             Log::info('Found leverancier: ' . $leverancier->Naam);
             
-            // Get products for this leverancier using stored procedure
-            $products = DB::select('CALL sp_getProductsByLeverancier(?)', [$id]);
+            // Get products for this leverancier
+            $products = Leverancier::getProductsByLeverancier($id);
             
             Log::info('Found ' . count($products) . ' products');
             
@@ -65,7 +62,7 @@ class LeverancierController extends Controller
     {
         try {
             // Get leverancier details
-            $leveranciers = DB::select('CALL sp_getAllLeverancier()');
+            $leveranciers = Leverancier::getAllLeveranciers();
             $leverancier = collect($leveranciers)->firstWhere('Id', $leverancierId);
             
             if (!$leverancier) {
@@ -75,7 +72,7 @@ class LeverancierController extends Controller
             }
             
             // Get product details
-            $products = DB::select('CALL sp_getProductsByLeverancier(?)', [$leverancierId]);
+            $products = Leverancier::getProductsByLeverancier($leverancierId);
             $product = collect($products)->firstWhere('Id', $productId);
             
             if (!$product) {
@@ -102,23 +99,17 @@ class LeverancierController extends Controller
         ]);
         
         try {
-            // Call stored procedure with validation
-            DB::select('CALL sp_updateProductHoudbaarheidsdatum(?, ?, @result, @message)', [
-                $productId,
-                $request->houdbaarheidsdatum
-            ]);
+            // Update product using model
+            $result = Leverancier::updateProductHoudbaarheidsdatum($productId, $request->houdbaarheidsdatum);
             
-            // Get result from stored procedure
-            $output = DB::select('SELECT @result as result, @message as message')[0];
-            
-            if ($output->result == 1) {
+            if ($result['success']) {
                 return redirect()
                     ->route('leverancier.product.edit', [$leverancierId, $productId])
-                    ->with('success', $output->message);
+                    ->with('success', $result['message']);
             } else {
                 return redirect()
                     ->route('leverancier.product.edit', [$leverancierId, $productId])
-                    ->with('error', $output->message)
+                    ->with('error', $result['message'])
                     ->withInput();
             }
         } catch (Exception $e) {
