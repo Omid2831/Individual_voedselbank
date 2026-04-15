@@ -25,14 +25,37 @@ class VoorraadController extends Controller
             // Get categories for dropdown
             $categories = DB::table('Categorie')->select('Id', 'Naam')->get();
 
-            // Get paginated voorraad from model
-            $voorraadModel = new VoorraadModel();
-            $voorraad = $voorraadModel->getPaginatedVoorraad($page, $perPage, $categorie, $request);
+            // Try to get voorraad from stored procedure, fallback to direct query if it fails
+            try {
+                $voorraadModel = new VoorraadModel();
+                $voorraad = $voorraadModel->getPaginatedVoorraad($page, $perPage, $categorie, $request);
+            } catch (\Exception $e) {
+                Log::warning('Stored procedure sp_getAllVoorraad failed, using fallback query: ' . $e->getMessage());
+                
+                // Fallback: Direct query without stored procedure
+                $query = DB::table('Product as p')
+                    ->leftJoin('Categorie as c', 'p.CategorieId', '=', 'c.Id')
+                    ->select(
+                        'p.Id as ProductId',
+                        'p.Naam as ProductNaam',
+                        'p.Barcode',
+                        'p.Houdbaarheidsdatum',
+                        'c.Naam as Categorie',
+                        DB::raw("DATE_FORMAT(p.Houdbaarheidsdatum, '%d-%m-%Y') as HoudbaarheidsdatumFormatted")
+                    )
+                    ->orderBy('p.Houdbaarheidsdatum', 'DESC');
+                
+                if ($categorie) {
+                    $query->where('c.Naam', $categorie);
+                }
+                
+                $voorraad = $query->paginate($perPage, ['*'], 'page', $page);
+            }
 
             return view('voorraad.overzicht', compact('voorraad', 'categories', 'categorie'));
         } catch (\Exception $e) {
             Log::error('Fout bij weergave van voorraadoverzicht: ' . $e->getMessage());
-            return redirect()->back()
+            return redirect()->route('dashboard')
                 ->with('error', 'Er is een fout opgetreden bij het laden van de voorraad');
         }
     }
